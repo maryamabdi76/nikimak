@@ -1,5 +1,3 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
 // Central calendar config so we don't repeat magic strings
 const PERSIAN_CALENDAR_LOCALE = 'fa-IR-u-ca-persian';
 
