@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,4 +119,29 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Neon scrollbar styling to match the dark UI */
+.table-scroll {
+  scrollbar-width: thin;
+  /* Very dark thumb + track for Firefox */
+  scrollbar-color: #020617 #020617;
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.98); /* almost pure dark */
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  /* Subtle dark thumb for WebKit browsers */
+  background: linear-gradient(90deg, #020617, #020617);
+  border-radius: 9999px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #020617, #020617);
 }
