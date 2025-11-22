@@ -60,11 +60,12 @@ function buildDateMeta(dateStrings: DateKey[]): DateMeta[] {
       const monthIndex = Number(monthStr) - 1;
       const day = Number(dayStr);
 
+      // Create date in local timezone (no UTC conversion needed for Persian calendar)
       const date = new Date(year, monthIndex, day);
 
+      // Get Persian calendar month key (01-12)
       const faMonthKey = date.toLocaleDateString(PERSIAN_CALENDAR_LOCALE, {
         month: '2-digit',
-        timeZone: 'UTC',
       });
 
       return {
@@ -78,22 +79,31 @@ function buildDateMeta(dateStrings: DateKey[]): DateMeta[] {
 /**
  * Build columns: one column per day + a "month-total" column
  * at the end of each Persian month group.
+ * Format: "آبان total" (month name in Persian + " total")
+ *
+ * Example: 26 آبان, 27 آبان, 28 آبان, [آبان total], 01 آذر, 02 آذر, [آذر total]
  */
 function buildColumns(dateMeta: DateMeta[]): Column[] {
   const cols: Column[] = [];
 
+  if (dateMeta.length === 0) return cols;
+
   dateMeta.forEach((meta, index) => {
+    // Add the date column
     cols.push({ kind: 'date', label: meta.label, date: meta.date });
 
+    // Check if this is the last date of the current month
     const nextMeta = dateMeta[index + 1];
     const isEndOfMonth = !nextMeta || nextMeta.monthKey !== meta.monthKey;
 
     if (isEndOfMonth) {
+      // Get Persian month name for the label
       const faMonthShort = meta.date.toLocaleDateString(
         PERSIAN_CALENDAR_LOCALE,
         { month: 'short' }
       );
 
+      // Add month total column right after the last day of this month
       cols.push({
         kind: 'month-total',
         monthKey: meta.monthKey,
@@ -442,7 +452,7 @@ export default function Home() {
                       ) : (
                         <th
                           key={column.label}
-                          className="px-3 py-3 text-center text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-sky-300"
+                          className="px-3 py-3 text-center text-[0.65rem] font-semibold text-emerald-300"
                         >
                           {column.label}
                         </th>
