@@ -153,6 +153,8 @@ export default function Home() {
 
   const [scoreboard, setScoreboard] = useState<Scoreboard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sortColumn, setSortColumn] = useState<MonthKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Fetch from our API
   useEffect(() => {
@@ -187,7 +189,7 @@ export default function Home() {
   );
 
   // Map DB players → UI players (winsByDate → wins)
-  const players: PlayerRow[] = useMemo(
+  const playersBase: PlayerRow[] = useMemo(
     () =>
       scoreboard
         ? scoreboard.players.map((p) => ({
@@ -197,6 +199,36 @@ export default function Home() {
         : [],
     [scoreboard]
   );
+
+  // Handle sorting by month column
+  const handleMonthSort = (monthKey: MonthKey) => {
+    if (sortColumn === monthKey) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column, default to descending
+      setSortColumn(monthKey);
+      setSortDirection('desc');
+    }
+  };
+
+  // Sort players based on selected month
+  const players: PlayerRow[] = useMemo(() => {
+    if (!sortColumn || !dateMeta.length) {
+      return playersBase;
+    }
+
+    return [...playersBase].sort((a, b) => {
+      const aTotal = getMonthTotal(a, sortColumn, dateMeta);
+      const bTotal = getMonthTotal(b, sortColumn, dateMeta);
+
+      if (sortDirection === 'desc') {
+        return bTotal - aTotal;
+      } else {
+        return aTotal - bTotal;
+      }
+    });
+  }, [playersBase, sortColumn, sortDirection, dateMeta]);
 
   // Scroll table to the end when columns are ready
   useEffect(() => {
@@ -452,9 +484,18 @@ export default function Home() {
                       ) : (
                         <th
                           key={column.label}
-                          className="px-3 py-3 text-center text-[0.65rem] font-semibold text-emerald-300"
+                          onClick={() => handleMonthSort(column.monthKey)}
+                          className="cursor-pointer select-none px-3 py-3 text-center text-[0.65rem] font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
+                          title="Click to sort by this month"
                         >
-                          {column.label}
+                          <div className="flex items-center justify-center gap-1.5">
+                            <span>{column.label}</span>
+                            {sortColumn === column.monthKey && (
+                              <span className="text-[0.7rem]">
+                                {sortDirection === 'desc' ? '↓' : '↑'}
+                              </span>
+                            )}
+                          </div>
                         </th>
                       )
                     )}
