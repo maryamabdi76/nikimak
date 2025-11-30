@@ -148,7 +148,10 @@ export default function Home() {
         </div>
 
         <div className="relative flex flex-col gap-6">
-          <Header />
+          <Header
+            onPlayerAdded={fetchScoreboard}
+            existingPlayers={scoreboard?.players.map((p) => p.name) || []}
+          />
 
           <PlayerSummaryStrip
             players={players}
